@@ -6,6 +6,7 @@ import (
 	"net"
 	"ngrok/cache"
 	"ngrok/log"
+	"regexp"
 	"sync"
 	"time"
 )
@@ -156,8 +157,29 @@ func (r *TunnelRegistry) Del(url string) {
 
 func (r *TunnelRegistry) Get(url string) *Tunnel {
 	r.RLock()
+	tunnel := r.tunnels[url]
+	r.RUnlock()
+
+	if tunnel != nil {
+		return tunnel
+	}
+
+	return r.GetSubdomain(url)
+}
+
+func (r *TunnelRegistry) GetSubdomain(url string) *Tunnel {
+	r.RLock()
 	defer r.RUnlock()
-	return r.tunnels[url]
+
+	pathspec := regexp.MustCompile(`(http)://([A-Za-z0-9]*)[-.](.*)`)
+	if match := pathspec.FindStringSubmatch(url); match != nil {
+		protocol, rest := match[1], match[3]
+		parent := fmt.Sprintf("%s://%s", protocol, rest)
+		log.Info("Parent is: %s", parent)
+		return r.tunnels[parent]
+	}
+
+	return nil;
 }
 
 // ControlRegistry maps a client ID to Control structures
