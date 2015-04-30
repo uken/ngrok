@@ -179,7 +179,7 @@ func (r *TunnelRegistry) GetSubdomain(url string) *Tunnel {
 		return r.tunnels[parent]
 	}
 
-	return nil;
+	return nil
 }
 
 // ControlRegistry maps a client ID to Control structures
