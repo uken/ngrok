@@ -80,24 +80,16 @@ func registerVhost(t *Tunnel, protocol string, servingPort int) (err error) {
 	// Register for specific subdomain
 	subdomain := strings.ToLower(strings.TrimSpace(t.req.Subdomain))
 	if subdomain != "" {
-		t.url = fmt.Sprintf("%s://%s.%s", protocol, SubdomainSlug(subdomain), vhost)
+		t.url = fmt.Sprintf("%s://%s-%s", protocol, subdomain, vhost)
 		return tunnelRegistry.Register(t.url, t)
 	}
 
 	// Register for random URL
 	t.url, err = tunnelRegistry.RegisterRepeat(func() string {
-		return fmt.Sprintf("%s://%s.%s", protocol, RandomSlug(), vhost)
+		return fmt.Sprintf("%s://%x-%s", protocol, rand.Int31(), vhost)
 	}, t)
 
 	return
-}
-
-func RandomSlug() string {
-	return fmt.Sprintf("%x-tunnel", rand.Int31())
-}
-
-func SubdomainSlug(subdomain string) string {
-	return fmt.Sprintf("%s-tunnel", subdomain)
 }
 
 // Create a new tunnel from a registration message received
