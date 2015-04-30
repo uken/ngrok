@@ -171,7 +171,7 @@ func (r *TunnelRegistry) GetSubdomain(url string) *Tunnel {
 	r.RLock()
 	defer r.RUnlock()
 
-	pathspec := regexp.MustCompile(`(http)://([A-Za-z0-9]*)[-.](.*)`)
+	pathspec := regexp.MustCompile(`(https?)://([A-Za-z0-9]*)[-.](.*)`)
 	if match := pathspec.FindStringSubmatch(url); match != nil {
 		protocol, rest := match[1], match[3]
 		parent := fmt.Sprintf("%s://%s", protocol, rest)
